@@ -14,7 +14,7 @@ import { Role } from './users/entities/roles.entity';
       username: 'root',
       password: 'raju',
       database: 'management_service_data',
-      synchronize: true,
+      synchronize: false,
        
       entities: [User, Role],  
     }),

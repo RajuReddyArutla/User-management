@@ -69,7 +69,7 @@ export class UserController {
   ): Promise<User> {
     try {
       const { role } = body;
-      const updatedUser = await this.userService.assignRole(userId, role);
+      const updatedUser = await this.userService.assignRole(userId, [role]);
       return updatedUser;
     } catch (error) {
       throw new HttpException(

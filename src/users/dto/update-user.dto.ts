@@ -19,9 +19,9 @@ export class UpdateUserDto  {
   
   @IsOptional()
   @IsArray()
-  phone: string[];
+  phone?: string[];
   
   @IsString()
   @IsOptional()
-  status: string;
+  status?: string;
 }

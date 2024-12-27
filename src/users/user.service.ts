@@ -18,11 +18,11 @@ export class UserService {
     const { password, role, ...rest } = createUserDto;
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Ensure 'role' is always an array of strings
     const user = this.userRepository.create({
       ...rest,
       password: hashedPassword,
-      role: Array.isArray(role) ? role.join(',') : role,
-
+      role: Array.isArray(role) ? role : [role], // Ensure role is an array
     });
 
     return this.userRepository.save(user);
@@ -35,7 +35,7 @@ export class UserService {
 
   // Get a user by ID
   async getUserById(id: number): Promise<User> {
-    const user = await this.userRepository.findOneBy( { id } );
+    const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new Error('User not found');
     }
@@ -43,21 +43,19 @@ export class UserService {
   }
 
   // Update user
-  
- async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this.userRepository.findOneBy({id});
+  async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new Error('User not found');
     }
     Object.assign(user, updateUserDto);
-  
+
     return this.userRepository.save(user);
   }
-  
 
   // Delete user
   async deleteUser(id: number): Promise<void> {
-    const user = await this.userRepository.findOneBy( { id } );
+    const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new Error('User not found');
     }
@@ -65,20 +63,13 @@ export class UserService {
     await this.userRepository.remove(user);
   }
 
-
-//   assign a role to a user
-  async assignRole(userId: number, role: string): Promise<User> {
+  // Assign a role to a user
+  async assignRole(userId: number, role: string[]): Promise<User> { // Ensure role is an array
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new Error('User not found');
     }
-    user.role = role;
+    user.role = role; // Assign the array of roles
     return this.userRepository.save(user);
   }
 }
-
-
-
-
-
-
