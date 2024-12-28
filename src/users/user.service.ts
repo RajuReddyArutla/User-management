@@ -5,6 +5,7 @@ import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create.user.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
@@ -46,9 +47,10 @@ export class UserService {
   async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
     Object.assign(user, updateUserDto);
+    await this.userRepository.update({ id }, updateUserDto); 
 
     return this.userRepository.save(user);
   }
@@ -57,19 +59,20 @@ export class UserService {
   async deleteUser(id: number): Promise<void> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
-      throw new Error('User not found');
+      throw new Error('Failed to delete user: User not found');
     }
 
     await this.userRepository.remove(user);
   }
 
   // Assign a role to a user
-  async assignRole(userId: number, role: string[]): Promise<User> { // Ensure role is an array
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+  async assignRole(userId: number, role: string[]): Promise<User> { 
+    const user = await this.userRepository.findOneBy( { id: userId } );
     if (!user) {
       throw new Error('User not found');
     }
-    user.role = role; // Assign the array of roles
-    return this.userRepository.save(user);
+    user.role =  [...user.role, ...role]; // Assign the array of roles
+    await this.userRepository.save(user);
+    return user;
   }
 }

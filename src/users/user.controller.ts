@@ -63,19 +63,31 @@ export class UserController {
 
   
   @Post(':userId/assign-role')
-  async assignRole(
-    @Param('userId') userId: number, 
-    @Body() body: { role: string }
-  ): Promise<User> {
+  async assignRole(userId: number, assignRoleDto: { roles: string[] }): Promise<any> {
     try {
-      const { role } = body;
-      const updatedUser = await this.userService.assignRole(userId, [role]);
-      return updatedUser;
+      const updatedUser = await this.userService.assignRole(userId, assignRoleDto.roles);
+      return { statusCode: 200, message: 'Role assigned successfully', user: updatedUser };
     } catch (error) {
-      throw new HttpException(
-        `Failed to assign role: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      console.error('Error:', error);
+      throw new InternalServerErrorException(`Failed to assign role: ${error.message}`);
     }
   }
+  
+  // async assignRole(
+  //   @Param('userId') userId: number, 
+  //   @Body() body: { roles: string []}
+  // ): Promise<User> {
+  //   try {
+  //     const { roles } = body;
+  //     return this.userService.assignRole(userId, roles);
+      
+  //     // const updatedUser = await this.userService.assignRole(userId, [roles]);
+  //     // return updatedUser;
+  //   } catch (error) {
+  //     throw new HttpException(
+  //       `Failed to assign role: ${error.message}`,
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
 }
